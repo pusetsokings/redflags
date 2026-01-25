@@ -30,22 +30,54 @@ export function Chat() {
 
   const loadMessages = async () => {
     try {
-      const history = await getChatHistory();
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise<ChatMessage[]>((_, reject) => {
+        setTimeout(() => reject(new Error('Load timeout')), 3000);
+      });
+      
+      const history = await Promise.race([
+        getChatHistory(),
+        timeoutPromise
+      ]);
+      
       if (history.length === 0) {
-        // Welcome message
-        const entries = await getJournalEntries();
-        loadWelcomeMessage(entries);
+        // Welcome message - load entries in background, don't block
+        try {
+          const entries = await Promise.race([
+            getJournalEntries(),
+            new Promise<JournalEntry[]>((_, reject) => setTimeout(() => reject(new Error('Timeout')), 2000))
+          ]);
+          loadWelcomeMessage(entries);
+        } catch {
+          // Fallback to sync, but don't block
+          try {
+            const entries = getJournalEntriesSync();
+            loadWelcomeMessage(entries);
+          } catch {
+            // Show basic welcome if all fails
+            loadWelcomeMessage([]);
+          }
+        }
       } else {
         setMessages(history);
       }
     } catch {
       // Fallback to sync
-      const history = getChatHistorySync();
-      if (history.length === 0) {
-        const entries = getJournalEntriesSync();
-        loadWelcomeMessage(entries);
-      } else {
-        setMessages(history);
+      try {
+        const history = getChatHistorySync();
+        if (history.length === 0) {
+          try {
+            const entries = getJournalEntriesSync();
+            loadWelcomeMessage(entries);
+          } catch {
+            loadWelcomeMessage([]);
+          }
+        } else {
+          setMessages(history);
+        }
+      } catch {
+        // Show basic welcome if all fails
+        loadWelcomeMessage([]);
       }
     }
   };

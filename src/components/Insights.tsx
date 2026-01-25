@@ -17,17 +17,49 @@ export function Insights() {
   const [contextFilter, setContextFilter] = useState<string>('all');
   const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const loadEntries = async () => {
       try {
-        const allEntries = await getJournalEntries();
-        setEntries(allEntries);
+        setLoading(true);
+        // Add timeout to prevent hanging
+        const timeoutPromise = new Promise<JournalEntry[]>((_, reject) => {
+          setTimeout(() => reject(new Error('Load timeout')), 5000);
+        });
         
-        // Increment insight views for achievement tracking
-        const { incrementInsightViews } = await import('../lib/achievements');
-        await incrementInsightViews();
-      } catch {
-        setEntries(getJournalEntries());
+        const allEntries = await Promise.race([
+          getJournalEntries(),
+          timeoutPromise
+        ]);
+        
+        if (!Array.isArray(allEntries)) {
+          setEntries([]);
+        } else {
+          setEntries(allEntries);
+        }
+        
+        // Increment insight views for achievement tracking (non-blocking)
+        try {
+          const { incrementInsightViews } = await import('../lib/achievements');
+          incrementInsightViews().catch(() => {
+            // Silently fail - not critical
+          });
+        } catch {
+          // Silently fail - not critical
+        }
+      } catch (error) {
+        console.error('Failed to load entries:', error);
+        // Fallback to sync version
+        try {
+          const { getJournalEntriesSync } = await import('../lib/storage');
+          const syncEntries = getJournalEntriesSync();
+          setEntries(Array.isArray(syncEntries) ? syncEntries : []);
+        } catch {
+          setEntries([]);
+        }
+      } finally {
+        setLoading(false);
       }
     };
     loadEntries();
@@ -213,7 +245,17 @@ export function Insights() {
         </motion.div>
       </div>
 
-      {filteredEntries.length === 0 ? (
+      {loading ? (
+        <div className="bg-white rounded-3xl p-12 shadow-lg text-center border-4 border-[#1A1A2E]">
+          <div className="inline-flex p-6 rounded-2xl bg-[#FFD93D] border-3 border-[#1A1A2E] mb-4">
+            <BarChart3 className="w-16 h-16 text-[#1A1A2E] animate-pulse" />
+          </div>
+          <h3 className="mb-2 text-[#1A1A2E] font-bold text-xl">Loading Insights...</h3>
+          <p className="text-[#495057]">
+            Analyzing your data
+          </p>
+        </div>
+      ) : filteredEntries.length === 0 ? (
         <div className="bg-white rounded-3xl p-12 shadow-lg text-center border-4 border-[#1A1A2E]">
           <div className="inline-flex p-6 rounded-2xl bg-[#FFD93D] border-3 border-[#1A1A2E] mb-4">
             <BarChart3 className="w-16 h-16 text-[#1A1A2E]" />

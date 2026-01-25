@@ -127,12 +127,38 @@ export function Journal({ onQuickLog }: JournalProps = {}) {
 
   const loadEntries = async () => {
     try {
-      const allEntries = await getJournalEntries();
-      setEntries(allEntries);
+      setIsLoading(true);
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise<JournalEntry[]>((_, reject) => {
+        setTimeout(() => reject(new Error('Load timeout')), 3000);
+      });
+      
+      const allEntries = await Promise.race([
+        getJournalEntries(),
+        timeoutPromise
+      ]);
+      
+      if (!Array.isArray(allEntries)) {
+        setEntries([]);
+      } else {
+        setEntries(allEntries);
+      }
     } catch (error) {
       console.error('Failed to load entries:', error);
-      toast.error('Failed to load entries. Please try again.');
-      setEntries([]);
+      // Fallback to sync version
+      try {
+        const { getJournalEntriesSync } = await import('../lib/storage');
+        const syncEntries = getJournalEntriesSync();
+        setEntries(Array.isArray(syncEntries) ? syncEntries : []);
+      } catch {
+        setEntries([]);
+      }
+      // Don't show error toast for timeout - just use fallback
+      if (!error.message?.includes('timeout')) {
+        toast.error('Failed to load entries. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 

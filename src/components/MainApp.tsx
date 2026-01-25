@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense, useMemo } from 'react';
 import { Home, BookOpen, TrendingUp, MessageCircle, Settings, PenLine, Loader2, Trophy } from 'lucide-react';
 import { Button } from './ui/button';
 import { Logo } from './Logo';
@@ -44,6 +44,7 @@ export function MainApp({ onLock, onPanic }: MainAppProps) {
   ];
 
   const renderContent = () => {
+    // Use useMemo to prevent re-creating components on every render
     switch (activeTab) {
       case 'dashboard':
         return (
@@ -117,7 +118,7 @@ export function MainApp({ onLock, onPanic }: MainAppProps) {
 
       {/* Main Content */}
       <main id="main-content" className="max-w-7xl mx-auto px-4 py-6" role="main">
-        {renderContent()}
+        {isTabChanging ? <TabLoading /> : useMemo(() => renderContent(), [activeTab, onPanic])}
       </main>
 
       {/* Quick Actions FAB */}
