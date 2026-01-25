@@ -1,0 +1,61 @@
+
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+      
+      <!-- Primary Meta Tags -->
+      <title>FlagSense - Red Flag Radar for Love, Family & Friends</title>
+      <meta name="title" content="FlagSense - Red Flag Radar for Love, Family & Friends" />
+      <meta name="description" content="Privacy-first relationship wellness tracker. Identify toxic patterns across love, family & friends. 100% offline, your data stays on your device." />
+      <meta name="keywords" content="red flags, relationship, toxic, boundaries, gaslighting, manipulation, privacy, wellness" />
+      <meta name="author" content="FlagSense" />
+      <meta name="robots" content="index, follow" />
+      
+      <!-- Open Graph / Facebook -->
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content="FlagSense - Red Flag Radar" />
+      <meta property="og:description" content="Privacy-first relationship wellness tracker. 100% offline, your data stays on your device." />
+      <meta property="og:image" content="/icon-512.png" />
+      
+      <!-- Twitter -->
+      <meta property="twitter:card" content="summary_large_image" />
+      <meta property="twitter:title" content="FlagSense - Red Flag Radar" />
+      <meta property="twitter:description" content="Privacy-first relationship wellness tracker. 100% offline, your data stays on your device." />
+      <meta property="twitter:image" content="/icon-512.png" />
+      
+      <!-- PWA -->
+      <meta name="theme-color" content="#4B2E83" />
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+      <meta name="apple-mobile-web-app-title" content="FlagSense" />
+      <link rel="apple-touch-icon" href="/icon-192.png" />
+      
+      <!-- Manifest -->
+      <link rel="manifest" href="/manifest.json" />
+      
+      <!-- Favicon -->
+      <link rel="icon" type="image/png" href="/icon-192.png" />
+    </head>
+
+    <body>
+      <div id="root"></div>
+      <script type="module" src="/src/main.tsx"></script>
+      <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+              .then((registration) => {
+                console.log('SW registered: ', registration);
+              })
+              .catch((registrationError) => {
+                console.log('SW registration failed: ', registrationError);
+              });
+          });
+        }
+      </script>
+    </body>
+  </html>
+  
