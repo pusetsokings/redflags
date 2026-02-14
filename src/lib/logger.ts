@@ -37,18 +37,15 @@ class Logger {
     }
   }
 
-  error(...args: unknown[]): void {
-    // Always log errors, even in production
-    // But in production, we might want to send to error tracking service
-    console.error('[ERROR]', ...args);
-    
-    // In production, you could send to error tracking service here
-    // Example: errorTrackingService.logError(args);
+  // Backwards-compatible aliases (older code uses logInfo/logWarn/logError)
+  logInfo(...args: unknown[]): void {
+    this.info(...args);
   }
 
-  /**
-   * Logs errors without exposing sensitive user data
-   */
+  logWarn(...args: unknown[]): void {
+    this.warn(...args);
+  }
+
   logError(error: Error, context?: Record<string, unknown>): void {
     const errorData = {
       message: error.message,
@@ -65,6 +62,17 @@ class Logger {
       // errorTrackingService.logError(errorData);
     }
   }
+
+  error(...args: unknown[]): void {
+    // Always log errors, even in production
+    // But in production, we might want to send to error tracking service
+    console.error('[ERROR]', ...args);
+    
+    // In production, you could send to error tracking service here
+    // Example: errorTrackingService.logError(args);
+  }
+
+  // logError is defined above as a backwards-compatible alias
 
   /**
    * Removes sensitive data from context before logging

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus, Mic, MicOff, X } from 'lucide-react';
 import { Button } from './ui/button';
@@ -11,11 +11,11 @@ interface QuickActionsProps {
 export function QuickActions({ onQuickLog, onNewEntry }: QuickActionsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
     // Initialize speech recognition if available
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    if (!recognitionRef.current && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
       const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
       const recognitionInstance = new SpeechRecognition();
       recognitionInstance.continuous = false;
@@ -41,14 +41,14 @@ export function QuickActions({ onQuickLog, onNewEntry }: QuickActionsProps) {
         setIsListening(false);
       };
 
-      setRecognition(recognitionInstance);
+      recognitionRef.current = recognitionInstance;
     }
 
     // Keyboard shortcut: Cmd+K or Ctrl+K
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        setIsOpen(!isOpen);
+        setIsOpen((prev) => !prev);
       }
       if (e.key === 'Escape' && isOpen) {
         setIsOpen(false);
@@ -58,13 +58,12 @@ export function QuickActions({ onQuickLog, onNewEntry }: QuickActionsProps) {
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      if (recognition) {
-        recognition.stop();
-      }
+      recognitionRef.current?.stop();
     };
-  }, [isOpen, recognition, onQuickLog]);
+  }, [isOpen, onQuickLog]);
 
   const handleVoiceInput = () => {
+    const recognition = recognitionRef.current;
     if (!recognition) {
       alert('Voice input is not supported in your browser. Please use Chrome or Edge.');
       return;
@@ -123,7 +122,7 @@ export function QuickActions({ onQuickLog, onNewEntry }: QuickActionsProps) {
                 New Entry
               </div>
 
-              {recognition && (
+              {recognitionRef.current && (
                 <>
                   <Button
                     onClick={handleVoiceInput}
