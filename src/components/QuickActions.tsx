@@ -12,6 +12,11 @@ export function QuickActions({ onQuickLog, onNewEntry }: QuickActionsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const onQuickLogRef = useRef(onQuickLog);
+
+  useEffect(() => {
+    onQuickLogRef.current = onQuickLog;
+  }, [onQuickLog]);
 
   useEffect(() => {
     // Initialize speech recognition if available
@@ -29,7 +34,7 @@ export function QuickActions({ onQuickLog, onNewEntry }: QuickActionsProps) {
         setIsListening(false);
         setIsOpen(false);
         // Trigger quick log with voice input
-        onQuickLog();
+        onQuickLogRef.current();
       };
 
       recognitionInstance.onerror = (event: any) => {
@@ -60,7 +65,7 @@ export function QuickActions({ onQuickLog, onNewEntry }: QuickActionsProps) {
       document.removeEventListener('keydown', handleKeyDown);
       recognitionRef.current?.stop();
     };
-  }, [isOpen, onQuickLog]);
+  }, [isOpen]);
 
   const handleVoiceInput = () => {
     const recognition = recognitionRef.current;
@@ -82,7 +87,7 @@ export function QuickActions({ onQuickLog, onNewEntry }: QuickActionsProps) {
     <>
       {/* Floating Action Button */}
       <motion.div
-        className="fixed bottom-24 right-4 z-50"
+        className="fixed bottom-24 right-4 z-[90]"
         initial={false}
         animate={{ scale: isOpen ? 0.9 : 1 }}
       >

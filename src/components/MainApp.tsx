@@ -116,7 +116,11 @@ export function MainApp({ onLock, onPanic }: MainAppProps) {
       </header>
 
       {/* Main Content */}
-      <main id="main-content" className="max-w-7xl mx-auto px-4 py-6" role="main">
+      <main
+        id="main-content"
+        className="max-w-7xl mx-auto px-4 py-6 pb-[calc(10rem+env(safe-area-inset-bottom))]"
+        role="main"
+      >
         {content}
       </main>
 
@@ -136,7 +140,7 @@ export function MainApp({ onLock, onPanic }: MainAppProps) {
 
       {/* Bottom Navigation */}
       {activeTab !== 'settings' && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#1a1a2e] border-t-4 border-[#1A1A2E] dark:border-[#3A3A5E] safe-area-pb shadow-2xl">
+        <nav className="fixed bottom-0 left-0 right-0 z-[100] bg-white dark:bg-[#1a1a2e] border-t-4 border-[#1A1A2E] dark:border-[#3A3A5E] safe-area-pb shadow-2xl">
           <div className="max-w-7xl mx-auto px-2 py-3">
             <div className="flex justify-around items-center overflow-x-auto">
               {tabs.map((tab) => {

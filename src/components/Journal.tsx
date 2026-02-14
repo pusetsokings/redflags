@@ -103,6 +103,7 @@ interface JournalProps {
 
 export function Journal({ onQuickLog }: JournalProps = {}) {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [isWriting, setIsWriting] = useState(false);
   const [isQuickLog, setIsQuickLog] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
@@ -145,6 +146,7 @@ export function Journal({ onQuickLog }: JournalProps = {}) {
       }
     } catch (error) {
       console.error('Failed to load entries:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       // Fallback to sync version
       try {
         const { getJournalEntriesSync } = await import('../lib/storage');
@@ -154,7 +156,7 @@ export function Journal({ onQuickLog }: JournalProps = {}) {
         setEntries([]);
       }
       // Don't show error toast for timeout - just use fallback
-      if (!error.message?.includes('timeout')) {
+      if (!errorMessage.includes('timeout')) {
         toast.error('Failed to load entries. Please try again.');
       }
     } finally {
