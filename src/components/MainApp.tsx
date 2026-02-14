@@ -97,7 +97,7 @@ export function MainApp({ onLock, onPanic }: MainAppProps) {
   }, [activeTab, onLock, onPanic]);
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#0d0e1a]">
+    <div className="min-h-screen min-h-[100dvh] bg-[#F8F9FA] dark:bg-[#0d0e1a]">
       {/* Header */}
       <header className="bg-white dark:bg-[#1a1a2e] border-b-4 border-[#1A1A2E] dark:border-[#3A3A5E] sticky top-0 z-10 shadow-md">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -140,7 +140,7 @@ export function MainApp({ onLock, onPanic }: MainAppProps) {
 
       {/* Bottom Navigation */}
       {activeTab !== 'settings' && (
-        <nav className="fixed bottom-0 left-0 right-0 z-[100] bg-white dark:bg-[#1a1a2e] border-t-4 border-[#1A1A2E] dark:border-[#3A3A5E] safe-area-pb shadow-2xl">
+        <nav className="fixed bottom-0 left-0 right-0 z-[100] bg-white dark:bg-[#1a1a2e] border-t-4 border-[#1A1A2E] dark:border-[#3A3A5E] pb-[env(safe-area-inset-bottom)] safe-area-pb shadow-2xl">
           <div className="max-w-7xl mx-auto px-2 py-3">
             <div className="flex justify-around items-center overflow-x-auto">
               {tabs.map((tab) => {

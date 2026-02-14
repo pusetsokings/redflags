@@ -350,7 +350,7 @@ export function Chat() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto h-[calc(100vh-200px)] flex flex-col">
+    <div className="max-w-4xl mx-auto h-[calc(100dvh-200px)] h-[calc(100vh-200px)] flex flex-col">
       {/* Header */}
       <div className="bg-white rounded-t-3xl p-4 shadow-lg border-4 border-[#1A1A2E] border-b-0">
         <div className="flex items-center justify-between">
