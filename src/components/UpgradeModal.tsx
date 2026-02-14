@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Check, Sparkles, Shield, MessageCircle, BarChart3, Lock, Zap } from 'lucide-react';
+import { X, Check, Sparkles, Shield, MessageCircle, BarChart3, Lock, Zap, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { logger } from '../lib/logger';
+import { useLicense } from '../contexts/LicenseContext';
+import { startCheckout } from '../lib/license';
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -10,6 +13,10 @@ interface UpgradeModalProps {
 }
 
 export function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalProps) {
+  const { useBackend, refreshLicense } = useLicense();
+  const [purchaseLoading, setPurchaseLoading] = useState<string | null>(null);
+  const [restoreLoading, setRestoreLoading] = useState(false);
+
   const premiumFeatures = [
     {
       icon: Sparkles,
@@ -71,39 +78,53 @@ export function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalProps) {
   ];
 
   const handlePurchase = async (tier: string) => {
+    const tierKey = tier as 'monthly' | 'annual' | 'reduced';
+    if (!['monthly', 'annual', 'reduced'].includes(tierKey)) {
+      logger.logWarn('Invalid tier selected', { context: 'UpgradeModal', tier });
+      return;
+    }
+
+    if (useBackend) {
+      setPurchaseLoading(tier);
+      try {
+        const { checkoutUrl, error } = await startCheckout(tierKey);
+        if (error || !checkoutUrl) {
+          alert(error || 'Unable to open checkout. Please try again or contact support.');
+          return;
+        }
+        window.location.href = checkoutUrl;
+        logger.logInfo('Checkout redirect', { context: 'UpgradeModal', tier });
+      } catch (error) {
+        logger.logError(error instanceof Error ? error : new Error('Purchase failed'), {
+          context: 'UpgradeModal',
+          action: 'handlePurchase'
+        });
+        alert('An error occurred. Please try again.');
+      } finally {
+        setPurchaseLoading(null);
+      }
+      return;
+    }
+
     try {
       const { createCheckout, PRODUCT_VARIANTS } = await import('../lib/payments');
-      
-      // Map tier to variant ID
       const variantMap: Record<string, keyof typeof PRODUCT_VARIANTS> = {
         'monthly': 'monthly',
         'annual': 'annual',
         'reduced': 'reduced'
       };
-      
       const variantKey = variantMap[tier];
-      if (!variantKey) {
-        logger.logWarn('Invalid tier selected', { context: 'UpgradeModal', tier });
-        return;
-      }
-      
-      const variantId = PRODUCT_VARIANTS[variantKey];
+      const variantId = variantKey ? PRODUCT_VARIANTS[variantKey] : '';
       if (!variantId) {
         logger.logWarn('Product variant not configured', { context: 'UpgradeModal', variantKey });
-        // Fallback: Show alert with setup instructions
         alert('Payment integration not yet configured. Please set up Lemon Squeezy product variants in environment variables.');
         return;
       }
-      
-      // Create checkout URL
       const checkoutUrl = await createCheckout(variantId);
-      
       if (checkoutUrl) {
-        // Open checkout in new window
         window.open(checkoutUrl, '_blank', 'width=600,height=700');
         logger.logInfo('Checkout opened', { context: 'UpgradeModal', tier });
       } else {
-        logger.logError(new Error('Failed to create checkout'), { context: 'UpgradeModal' });
         alert('Unable to open checkout. Please try again or contact support.');
       }
     } catch (error) {
@@ -191,11 +212,14 @@ export function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalProps) {
 
                 {/* Pricing Tiers */}
                 <div className="space-y-3">
-                  {pricingTiers.map((tier) => (
+                  {pricingTiers.map((tier) => {
+                    const isLoading = purchaseLoading === tier.id;
+                    return (
                     <button
                       key={tier.id}
                       onClick={() => handlePurchase(tier.id)}
-                      className={`w-full bg-white rounded-2xl border-4 border-[#1A1A2E] p-4 text-left hover:shadow-xl transition-all relative overflow-hidden group ${
+                      disabled={!!purchaseLoading}
+                      className={`w-full bg-white rounded-2xl border-4 border-[#1A1A2E] p-4 text-left hover:shadow-xl transition-all relative overflow-hidden group disabled:opacity-70 ${
                         tier.mostPopular ? 'ring-4 ring-[#FFD93D]' : ''
                       }`}
                     >
@@ -220,11 +244,11 @@ export function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalProps) {
                         </div>
                         
                         <div className="w-12 h-12 bg-[#4B2E83] group-hover:bg-[#6C5CE7] rounded-full flex items-center justify-center transition-colors border-3 border-[#1A1A2E]">
-                          <Check className="w-6 h-6 text-white" strokeWidth={3} />
+                          {isLoading ? <Loader2 className="w-6 h-6 text-white animate-spin" strokeWidth={3} /> : <Check className="w-6 h-6 text-white" strokeWidth={3} />}
                         </div>
                       </div>
                     </button>
-                  ))}
+                  ); })}
                 </div>
 
                 {/* Value Props */}
@@ -256,10 +280,21 @@ export function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalProps) {
                 {/* Restore Purchases */}
                 <button
                   onClick={async () => {
+                    if (useBackend) {
+                      setRestoreLoading(true);
+                      try {
+                        const { hasLicense } = await refreshLicense();
+                        alert(hasLicense ? 'Your premium subscription is active!' : 'No active subscription found. If you recently purchased, please wait a moment and try again, or contact support.');
+                      } catch (error) {
+                        alert('Unable to restore purchases. Please contact support.');
+                      } finally {
+                        setRestoreLoading(false);
+                      }
+                      return;
+                    }
                     try {
                       const { getSubscription } = await import('../lib/payments');
                       const subscription = await getSubscription();
-                      
                       if (subscription && subscription.status === 'active') {
                         alert(`Your ${subscription.plan} subscription is active!`);
                       } else {
@@ -269,9 +304,10 @@ export function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalProps) {
                       alert('Unable to restore purchases. Please contact support.');
                     }
                   }}
-                  className="w-full text-center text-sm text-white/60 hover:text-white transition-colors underline"
+                  disabled={restoreLoading}
+                  className="w-full text-center text-sm text-white/60 hover:text-white transition-colors underline disabled:opacity-70"
                 >
-                  Restore Previous Purchase
+                  {restoreLoading ? 'Checking...' : 'Restore Previous Purchase'}
                 </button>
               </div>
             </div>

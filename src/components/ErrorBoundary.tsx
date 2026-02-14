@@ -47,7 +47,7 @@ function DefaultErrorFallback({ error, errorInfo, reset }: ErrorFallbackProps) {
           </p>
         </div>
 
-        {process.env.NODE_ENV === 'development' && error && (
+        {import.meta.env.DEV && error && (
           <div className="mb-6 p-4 bg-[#F8F9FA] rounded-2xl border-2 border-[#DEE2E6]">
             <p className="text-xs font-mono text-[#495057] break-all mb-2">
               <strong>Error:</strong> {error.message}

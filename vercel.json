@@ -15,7 +15,7 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
+          "value": "no-cache, no-store, must-revalidate"
         },
         {
           "key": "Service-Worker-Allowed",
@@ -27,6 +27,10 @@
       "source": "/manifest.json",
       "headers": [
         {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        },
+        {
           "key": "Content-Type",
           "value": "application/manifest+json"
         }
@@ -34,4 +38,3 @@
     }
   ]
 }
-

@@ -4,6 +4,7 @@ import { PinLock } from './components/PinLock';
 import { DisguisedMode } from './components/DisguisedMode';
 import { Toaster } from './components/ui/sonner';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { LicenseProvider } from './contexts/LicenseContext';
 import { Loader2 } from 'lucide-react';
 import { createSkipLink } from './lib/accessibility';
 import { monitor } from './lib/monitoring';
@@ -138,24 +139,26 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      {isDisguised ? (
-        <DisguisedMode onExit={handleExitDisguised} />
-      ) : isFirstTime ? (
-        <>
-          <OnboardingFlow onComplete={handleOnboardingComplete} />
-          <Toaster />
-        </>
-      ) : isLocked ? (
-        <>
-          <PinLock correctPin={pin} onUnlock={handleUnlock} />
-          <Toaster />
-        </>
-      ) : (
-        <Suspense fallback={<LoadingSpinner />}>
-          <MainApp onLock={handleLock} onPanic={() => setIsDisguised(true)} />
-          <Toaster />
-        </Suspense>
-      )}
+      <LicenseProvider>
+        {isDisguised ? (
+          <DisguisedMode onExit={handleExitDisguised} />
+        ) : isFirstTime ? (
+          <>
+            <OnboardingFlow onComplete={handleOnboardingComplete} />
+            <Toaster />
+          </>
+        ) : isLocked ? (
+          <>
+            <PinLock correctPin={pin} onUnlock={handleUnlock} />
+            <Toaster />
+          </>
+        ) : (
+          <Suspense fallback={<LoadingSpinner />}>
+            <MainApp onLock={handleLock} onPanic={() => setIsDisguised(true)} />
+            <Toaster />
+          </Suspense>
+        )}
+      </LicenseProvider>
     </ErrorBoundary>
   );
 }

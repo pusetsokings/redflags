@@ -3,15 +3,17 @@
  * Provides offline support and caching
  */
 
-const CACHE_NAME = 'flagsense-v2';
-const RUNTIME_CACHE = 'flagsense-runtime-v2';
+// Bump this version to force clients to refresh caches after deploys.
+const CACHE_NAME = 'flagsense-v3';
+const RUNTIME_CACHE = 'flagsense-runtime-v3';
 
 // Assets to cache on install
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
-  '/src/main.tsx',
-  '/src/App.tsx'
+  '/manifest.json',
+  '/icon-192.svg',
+  '/icon-512.svg',
 ];
 
 // Install event - cache static assets
@@ -19,7 +21,8 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        return cache.addAll(PRECACHE_ASSETS);
+        // Avoid install failing if any single asset 404s.
+        return Promise.allSettled(PRECACHE_ASSETS.map((url) => cache.add(url)));
       })
       .then(() => {
         return self.skipWaiting(); // Activate immediately
@@ -59,68 +62,62 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network-first strategy for JS/CSS files to prevent stale cache
-  const isStaticAsset = event.request.url.includes('.js') || 
-                        event.request.url.includes('.css') ||
-                        event.request.url.includes('chunk');
+  const isNavigation =
+    event.request.mode === 'navigate' ||
+    event.request.destination === 'document' ||
+    event.request.headers.get('accept')?.includes('text/html');
 
-  if (isStaticAsset) {
-    // Network first, then cache
+  // Critical: network-first for HTML to avoid stale index.html referencing missing hashed assets.
+  if (isNavigation) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          if (response && response.status === 200 && response.type === 'basic') {
-            const responseToCache = response.clone();
-            caches.open(RUNTIME_CACHE)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
+          if (response && response.status === 200) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put('/index.html', copy));
           }
           return response;
         })
-        .catch(() => {
-          // Fallback to cache if network fails
-          return caches.match(event.request);
-        })
+        .catch(() => caches.match('/index.html'))
     );
-  } else {
-    // Cache first for other assets
-    event.respondWith(
-      caches.match(event.request)
-        .then((cachedResponse) => {
-          // Return cached version if available
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-
-          // Otherwise fetch from network
-          return fetch(event.request)
-            .then((response) => {
-              // Don't cache non-successful responses
-              if (!response || response.status !== 200 || response.type !== 'basic') {
-                return response;
-              }
-
-              // Clone the response (stream can only be consumed once)
-              const responseToCache = response.clone();
-
-              // Cache the response
-              caches.open(RUNTIME_CACHE)
-                .then((cache) => {
-                  cache.put(event.request, responseToCache);
-                });
-
-              return response;
-            })
-            .catch(() => {
-              // If network fails and no cache, return offline page
-              if (event.request.destination === 'document') {
-                return caches.match('/index.html');
-              }
-            });
-        })
-    );
+    return;
   }
+
+  // For versioned JS/CSS assets, cache-first is safe; they are content-hashed by Vite.
+  const isStaticAsset =
+    event.request.destination === 'script' ||
+    event.request.destination === 'style' ||
+    event.request.url.includes('.js') ||
+    event.request.url.includes('.css');
+
+  if (isStaticAsset) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        if (cached) return cached;
+        return fetch(event.request).then((response) => {
+          if (response && response.status === 200 && response.type === 'basic') {
+            const copy = response.clone();
+            caches.open(RUNTIME_CACHE).then((cache) => cache.put(event.request, copy));
+          }
+          return response;
+        });
+      })
+    );
+    return;
+  }
+
+  // Default: network-first with cache fallback.
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        if (response && response.status === 200 && response.type === 'basic') {
+          const copy = response.clone();
+          caches.open(RUNTIME_CACHE).then((cache) => cache.put(event.request, copy));
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request))
+  );
 });
 
 // Message event - handle cache updates

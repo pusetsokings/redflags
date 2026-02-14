@@ -3,6 +3,8 @@ import { generateAIResponse as generateRuleBasedResponse } from './aiCounselor';
 import { getCohereResponse } from './cohereService';
 import { getSetting } from './storage';
 import { logger } from './logger';
+import { isSupabaseConfigured } from './supabase';
+import { getCachedLicense } from './license';
 
 export interface AIResponse {
   content: string;
@@ -23,9 +25,11 @@ export async function getHybridAIResponse(
   chatHistory: ChatMessage[]
 ): Promise<AIResponse> {
   
-  // Check if enhanced AI is enabled
-  const enhancedAIEnabled = getSetting('enhancedAI', false);
-  const cohereApiKey = getSetting('cohereApiKey', '');
+  // Check if enhanced AI is enabled (when Supabase/backend is used, require license)
+  const storageEnhanced = await getSetting('enhancedAI', false);
+  const hasLicense = !isSupabaseConfigured() || getCachedLicense();
+  const enhancedAIEnabled = storageEnhanced && hasLicense;
+  const cohereApiKey = await getSetting('cohereApiKey', '');
   
   // If enhanced AI is enabled and API key exists, try Cohere
   if (enhancedAIEnabled && cohereApiKey && cohereApiKey.trim() !== '') {
