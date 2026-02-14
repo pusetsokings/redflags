@@ -43,8 +43,7 @@ export function MainApp({ onLock, onPanic }: MainAppProps) {
     { id: 'achievements', label: 'Achievements', icon: Trophy }
   ];
 
-  const renderContent = () => {
-    // Use useMemo to prevent re-creating components on every render
+  const content = useMemo(() => {
     switch (activeTab) {
       case 'dashboard':
         return (
@@ -95,7 +94,7 @@ export function MainApp({ onLock, onPanic }: MainAppProps) {
           </Suspense>
         );
     }
-  };
+  }, [activeTab, onLock, onPanic]);
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#0d0e1a]">
@@ -118,7 +117,7 @@ export function MainApp({ onLock, onPanic }: MainAppProps) {
 
       {/* Main Content */}
       <main id="main-content" className="max-w-7xl mx-auto px-4 py-6" role="main">
-        {isTabChanging ? <TabLoading /> : useMemo(() => renderContent(), [activeTab, onPanic])}
+        {content}
       </main>
 
       {/* Quick Actions FAB */}
