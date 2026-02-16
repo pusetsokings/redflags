@@ -60,16 +60,16 @@ export function Achievements() {
             <Trophy className="w-8 h-8 text-[#FFD93D] dark:text-[#9D8AFF]" />
           </div>
           <div className="flex-1">
-            <h2 className="text-[#1A1A2E] dark:text-foreground font-bold text-2xl mb-1">Achievements</h2>
-            <p className="text-[#1A1A2E] dark:text-foreground/95">
+            <h2 className="text-[#1A1A2E] dark:text-[#f8f9fa] font-bold text-2xl mb-1">Achievements</h2>
+            <p className="text-[#1A1A2E] dark:text-[#f8f9fa]">
               Celebrate your progress and milestones
             </p>
           </div>
           <div className="text-right">
-            <div className="text-4xl font-bold text-[#1A1A2E] dark:text-foreground">
+            <div className="text-4xl font-bold text-[#1A1A2E] dark:text-[#f8f9fa]">
               {unlockedCount}/{totalCount}
             </div>
-            <div className="text-sm text-[#1A1A2E] dark:text-foreground font-bold">Unlocked</div>
+            <div className="text-sm text-[#1A1A2E] dark:text-[#f8f9fa] font-bold">Unlocked</div>
           </div>
         </div>
 

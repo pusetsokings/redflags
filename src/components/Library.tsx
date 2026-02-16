@@ -368,8 +368,8 @@ export function Library() {
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-20">
       <div>
-        <h2 className="mb-2 text-[#1A1A2E] dark:text-foreground font-bold text-2xl">Red Flag Library</h2>
-        <p className="text-[#495057] dark:text-muted-foreground">
+        <h2 className="mb-2 text-[#1A1A2E] dark:text-[#f8f9fa] font-bold text-2xl">Red Flag Library</h2>
+        <p className="text-[#495057] dark:text-[#adb5bd]">
           Learn about warning signs in relationships, workplace, and family dynamics
         </p>
       </div>

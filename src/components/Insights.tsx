@@ -122,8 +122,8 @@ export function Insights() {
     <div className="max-w-6xl mx-auto space-y-6 pb-20">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="mb-1 text-[#1A1A2E] font-bold text-2xl">Insights & Patterns</h2>
-          <p className="text-[#495057]">AI-powered analysis of your moments</p>
+          <h2 className="mb-1 text-[#1A1A2E] dark:text-[#f8f9fa] font-bold text-2xl">Insights & Patterns</h2>
+          <p className="text-[#495057] dark:text-[#adb5bd]">AI-powered analysis of your moments</p>
         </div>
       </div>
 
