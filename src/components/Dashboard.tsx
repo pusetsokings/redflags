@@ -65,8 +65,8 @@ function MoodRing({ score, size }: { score: number; size: number }) {
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-4xl font-bold text-[#1A1A2E]">{score}</div>
-          <div className="text-xs text-[#495057]">SCORE</div>
+          <div className="text-4xl font-bold text-[#1A1A2E] dark:text-foreground">{score}</div>
+          <div className="text-xs text-[#495057] dark:text-muted-foreground">SCORE</div>
         </div>
       </div>
     </div>
@@ -183,10 +183,10 @@ export function Dashboard({ onNewEntry, onPanic }: DashboardProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-[400px] bg-transparent">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 text-[#4B2E83] dark:text-[#9D8AFF] animate-spin mx-auto mb-2" />
-          <p className="text-sm text-[#495057] dark:text-[#adb5bd]">Loading your dashboard...</p>
+          <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-2" />
+          <p className="text-sm text-muted-foreground">Loading your dashboard...</p>
         </div>
       </div>
     );

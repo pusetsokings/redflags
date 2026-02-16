@@ -33,27 +33,27 @@ function DefaultErrorFallback({ error, errorInfo, reset }: ErrorFallbackProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-xl border-4 border-[#1A1A2E]">
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-card text-card-foreground rounded-3xl p-8 shadow-xl border-4 border-border">
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-[#FF5A5F] rounded-full flex items-center justify-center mx-auto mb-4 border-3 border-[#1A1A2E]">
-            <AlertTriangle className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 bg-destructive rounded-full flex items-center justify-center mx-auto mb-4 border-3 border-border">
+            <AlertTriangle className="w-8 h-8 text-destructive-foreground" />
           </div>
-          <h1 className="text-2xl font-bold text-[#1A1A2E] mb-2">
+          <h1 className="text-2xl font-bold text-foreground mb-2">
             Something went wrong
           </h1>
-          <p className="text-[#495057] text-sm">
+          <p className="text-muted-foreground text-sm">
             We're sorry, but something unexpected happened. Your data is safe and stored locally.
           </p>
         </div>
 
         {import.meta.env.DEV && error && (
-          <div className="mb-6 p-4 bg-[#F8F9FA] rounded-2xl border-2 border-[#DEE2E6]">
-            <p className="text-xs font-mono text-[#495057] break-all mb-2">
+          <div className="mb-6 p-4 bg-muted rounded-2xl border-2 border-border">
+            <p className="text-xs font-mono text-muted-foreground break-all mb-2">
               <strong>Error:</strong> {error.message}
             </p>
             {errorInfo && (
-              <details className="text-xs font-mono text-[#495057]">
+              <details className="text-xs font-mono text-muted-foreground">
                 <summary className="cursor-pointer mb-2">Stack trace</summary>
                 <pre className="overflow-auto text-[10px]">
                   {errorInfo.componentStack}
@@ -66,7 +66,7 @@ function DefaultErrorFallback({ error, errorInfo, reset }: ErrorFallbackProps) {
         <div className="space-y-3">
           <Button
             onClick={reset}
-            className="w-full bg-[#4B2E83] hover:bg-[#3A2363] text-white h-12 rounded-2xl border-3 border-[#1A1A2E] font-bold"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 rounded-2xl border-3 border-border font-bold"
           >
             <RefreshCw className="w-5 h-5 mr-2" />
             Try Again
@@ -75,7 +75,7 @@ function DefaultErrorFallback({ error, errorInfo, reset }: ErrorFallbackProps) {
           <Button
             onClick={handleReload}
             variant="outline"
-            className="w-full border-3 border-[#1A1A2E] bg-white hover:bg-[#F8F9FA] h-12 rounded-2xl text-[#1A1A2E] font-bold"
+            className="w-full border-3 border-border bg-card hover:bg-muted h-12 rounded-2xl text-foreground font-bold"
           >
             Reload App
           </Button>
@@ -83,15 +83,15 @@ function DefaultErrorFallback({ error, errorInfo, reset }: ErrorFallbackProps) {
           <Button
             onClick={handleGoHome}
             variant="outline"
-            className="w-full border-2 border-[#DEE2E6] bg-white hover:bg-[#F8F9FA] h-12 rounded-2xl text-[#495057] font-medium"
+            className="w-full border-2 border-border bg-card hover:bg-muted h-12 rounded-2xl text-muted-foreground font-medium"
           >
             <Home className="w-4 h-4 mr-2" />
             Go to Home
           </Button>
         </div>
 
-        <div className="mt-6 pt-6 border-t-2 border-[#E9ECEF]">
-          <p className="text-xs text-[#ADB5BD] text-center">
+        <div className="mt-6 pt-6 border-t-2 border-border">
+          <p className="text-xs text-muted-foreground text-center">
             If this problem persists, please export your data from Settings and contact support.
           </p>
         </div>

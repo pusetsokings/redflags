@@ -23,8 +23,10 @@ export function Logo({ size = 'md', showText = true, variant = 'default' }: Logo
     lg: 56
   };
 
+  const stroke = variant === 'white' ? '#ffffff' : 'var(--logo-stroke)';
+
   return (
-    <div className="flex items-center gap-3">
+    <div className={`flex items-center gap-3 ${variant === 'white' ? '' : 'text-foreground'}`}>
       <div className={`${sizeClasses[size]} relative flex-shrink-0`}>
         <svg
           width={iconSize[size]}
@@ -33,13 +35,13 @@ export function Logo({ size = 'md', showText = true, variant = 'default' }: Logo
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          {/* Radar circle with flag - FlagSense branding */}
+          {/* Radar circle with flag - stroke uses --logo-stroke (bluish grey in dark) */}
           <circle
             cx="28"
             cy="28"
             r="20"
             fill={variant === 'white' ? '#ffffff' : '#C7B8FF'}
-            stroke="#1A1A2E"
+            stroke={stroke}
             strokeWidth="3"
           />
           
@@ -49,7 +51,7 @@ export function Logo({ size = 'md', showText = true, variant = 'default' }: Logo
             y1="28"
             x2="42"
             y2="14"
-            stroke="#4B2E83"
+            stroke={stroke}
             strokeWidth="2.5"
             strokeLinecap="round"
           />
@@ -60,7 +62,7 @@ export function Logo({ size = 'md', showText = true, variant = 'default' }: Logo
             y1="14"
             x2="42"
             y2="6"
-            stroke="#1A1A2E"
+            stroke={stroke}
             strokeWidth="2.5"
             strokeLinecap="round"
           />
@@ -69,7 +71,7 @@ export function Logo({ size = 'md', showText = true, variant = 'default' }: Logo
           <path
             d="M42 6 L42 14 L52 10 L42 6 Z"
             fill="#FF5A5F"
-            stroke="#1A1A2E"
+            stroke={stroke}
             strokeWidth="2.5"
             strokeLinejoin="round"
           />
@@ -79,7 +81,7 @@ export function Logo({ size = 'md', showText = true, variant = 'default' }: Logo
             cx="28"
             cy="28"
             r="10"
-            stroke="#4B2E83"
+            stroke={stroke}
             strokeWidth="2"
             fill="none"
             opacity="0.5"
@@ -88,7 +90,7 @@ export function Logo({ size = 'md', showText = true, variant = 'default' }: Logo
             cx="28"
             cy="28"
             r="15"
-            stroke="#4B2E83"
+            stroke={stroke}
             strokeWidth="1.5"
             fill="none"
             opacity="0.3"
@@ -99,7 +101,7 @@ export function Logo({ size = 'md', showText = true, variant = 'default' }: Logo
       {showText && (
         <div className="flex flex-col -space-y-1">
           <span className={`${textSizeClasses[size]} font-bold tracking-tight ${
-            variant === 'white' ? 'text-white' : 'text-[#1A1A2E]'
+            variant === 'white' ? 'text-white' : 'text-foreground'
           }`}>
             FlagSense
           </span>

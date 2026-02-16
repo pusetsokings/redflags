@@ -6,7 +6,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Logo } from './Logo';
 import { CoupleIllustration, ShieldIllustration, ThinkingPersonIllustration, TrendUpIllustration } from './illustrations/BoldIllustrations';
-import { COUNTRIES } from '../lib/emergencyHotlines';
+import { COUNTRIES, detectCountryFromBrowser, getCountryByCode } from '../lib/emergencyHotlines';
 import { saveSetting } from '../lib/storage';
 import { hashPin } from '../lib/encryption';
 
@@ -19,8 +19,12 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [pin, setPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
   const [primaryFocus, setPrimaryFocus] = useState<string>('');
-  const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0].code);
+  const [selectedCountry, setSelectedCountry] = useState(() => {
+    const detected = detectCountryFromBrowser();
+    return detected && getCountryByCode(detected) ? detected : COUNTRIES[0].code;
+  });
   const [pinError, setPinError] = useState('');
+  const [detectingCountry, setDetectingCountry] = useState(false);
 
   const slides = [
     {
@@ -250,23 +254,42 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               </div>
 
               <h2 className="text-center mb-2 text-[#1A1A2E] font-bold text-2xl">Select your country</h2>
-              <p className="text-center text-[#495057] mb-6 font-medium">Choose your country to access local emergency hotlines and resources.</p>
+              <p className="text-center text-[#495057] mb-6 font-medium">Choose your country so emergency hotlines and SOS resources match your location.</p>
 
               <div className="space-y-4 mb-6">
                 <div>
                   <Label htmlFor="country" className="text-[#1A1A2E] font-bold">Country</Label>
-                  <select
-                    id="country"
-                    value={selectedCountry}
-                    onChange={(e) => setSelectedCountry(e.target.value)}
-                    className="mt-1.5 w-full bg-[#F8F9FA] border-3 border-[#1A1A2E] rounded-xl h-12 font-medium px-3"
-                  >
-                    {COUNTRIES.map((country) => (
-                      <option key={country.code} value={country.code}>
-                        {country.flag} {country.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex gap-2 mt-1.5">
+                    <select
+                      id="country"
+                      value={selectedCountry}
+                      onChange={(e) => setSelectedCountry(e.target.value)}
+                      className="flex-1 bg-[#F8F9FA] border-3 border-[#1A1A2E] rounded-xl h-12 font-medium px-3"
+                    >
+                      {COUNTRIES.map((country) => (
+                        <option key={country.code} value={country.code}>
+                          {country.flag} {country.name}
+                        </option>
+                      ))}
+                    </select>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setDetectingCountry(true);
+                        const detected = detectCountryFromBrowser();
+                        if (detected && getCountryByCode(detected)) {
+                          setSelectedCountry(detected);
+                        }
+                        setDetectingCountry(false);
+                      }}
+                      disabled={detectingCountry}
+                      className="border-3 border-[#1A1A2E] rounded-xl font-bold whitespace-nowrap"
+                    >
+                      {detectingCountry ? '…' : 'Detect'}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-[#495057] mt-1.5">Detect uses your browser timezone only — no location tracking.</p>
                 </div>
               </div>
 

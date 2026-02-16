@@ -10,7 +10,8 @@ import { Label } from './ui/label';
 import { Switch } from './ui/switch';
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { exportAllData, clearAllData, getSetting, saveSetting } from '../lib/storage';
+import { exportAllData, clearAllData, getSetting, getSettingSync, saveSetting } from '../lib/storage';
+import { COUNTRIES, getCountryByCode, detectCountryFromBrowser } from '../lib/emergencyHotlines';
 import { toast } from 'sonner';
 import { PrivacyPolicy } from './PrivacyPolicy';
 import { TermsOfUse } from './TermsOfUse';
@@ -24,8 +25,9 @@ interface SettingsPanelProps {
 }
 
 export function SettingsPanel({ onLock, onBack }: SettingsPanelProps) {
-  const { theme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const effectiveTheme = theme === 'system' ? resolvedTheme : theme;
   const [disguisedIcon, setDisguisedIcon] = useState(getSetting('disguisedIcon', 'none'));
   const [notifications, setNotifications] = useState(getSetting('notifications', true));
   const [language, setLanguage] = useState(getSetting('language', 'en'));
@@ -38,6 +40,8 @@ export function SettingsPanel({ onLock, onBack }: SettingsPanelProps) {
   const [showHelp, setShowHelp] = useState(false);
   const [reminderSettings, setReminderSettings] = useState<ReminderSettings | null>(null);
   const [loadingReminders, setLoadingReminders] = useState(true);
+  const [userCountry, setUserCountry] = useState(() => getSettingSync('userCountry', 'US'));
+  const [detectingCountry, setDetectingCountry] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -214,50 +218,53 @@ export function SettingsPanel({ onLock, onBack }: SettingsPanelProps) {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-20">
-      <Button 
-        variant="ghost" 
-        onClick={onBack} 
-        className="mb-4 hover:bg-[#F8F9FA] border-2 border-transparent hover:border-[#1A1A2E] rounded-xl"
-      >
-        <ArrowLeft className="w-4 h-4 mr-2" />
-        Back
-      </Button>
+      <div className="mb-4">
+        <Button 
+          variant="ghost" 
+          onClick={onBack} 
+          className="hover:bg-[#F8F9FA] dark:hover:bg-[#2A2A4E] border-2 border-transparent hover:border-[#1A1A2E] dark:hover:border-[#9D8AFF] rounded-xl"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Home
+        </Button>
+        <p className="text-xs text-[#495057] dark:text-[#adb5bd] mt-1">Your settings — theme, country, security & data.</p>
+      </div>
 
       {/* Security Settings */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-3xl p-6 shadow-lg border-4 border-[#1A1A2E]"
+        className="bg-card text-card-foreground rounded-3xl p-6 shadow-lg border-4 border-border"
       >
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-3 bg-[#6C5CE7] rounded-2xl border-3 border-[#1A1A2E]">
-            <Lock className="w-6 h-6 text-white" strokeWidth={3} />
+          <div className="p-3 bg-[#6C5CE7] dark:bg-primary rounded-2xl border-3 border-border">
+            <Lock className="w-6 h-6 text-primary-foreground" strokeWidth={3} />
           </div>
-          <h3 className="text-[#1A1A2E] font-bold text-xl">Security & Privacy</h3>
+          <h3 className="text-foreground font-bold text-xl">Security & Privacy</h3>
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between py-3 border-b-3 border-[#E9ECEF]">
+          <div className="flex items-center justify-between py-3 border-b-3 border-border">
             <div>
-              <Label className="text-[#1A1A2E] font-bold">Lock App Now</Label>
-              <p className="text-sm text-[#495057]">Requires PIN to unlock</p>
+              <Label className="text-foreground font-bold">Lock App Now</Label>
+              <p className="text-sm text-muted-foreground">Requires PIN to unlock</p>
             </div>
             <Button 
               onClick={onLock} 
               variant="outline"
-              className="bg-[#FFD93D] border-3 border-[#1A1A2E] hover:bg-[#FFE66D] text-[#1A1A2E] font-bold rounded-xl"
+              className="bg-[#FFD93D] dark:bg-amber-500 border-3 border-border hover:bg-[#FFE66D] dark:hover:bg-amber-400 text-foreground font-bold rounded-xl"
             >
               Lock
             </Button>
           </div>
 
           <div>
-            <Label className="text-[#1A1A2E] font-bold">Disguised App Icon</Label>
-            <p className="text-sm text-[#495057] mb-3">
+            <Label className="text-foreground font-bold">Disguised App Icon</Label>
+            <p className="text-sm text-muted-foreground mb-3">
               Change how the app appears on your device for discretion
             </p>
             <Select value={disguisedIcon} onValueChange={handleIconChange}>
-              <SelectTrigger className="border-3 border-[#1A1A2E] rounded-xl h-12 bg-[#F8F9FA]">
+              <SelectTrigger className="border-3 border-border rounded-xl h-12 bg-muted text-foreground">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -276,12 +283,12 @@ export function SettingsPanel({ onLock, onBack }: SettingsPanelProps) {
             </Select>
           </div>
 
-          <div className="bg-[#4ECDC4] border-3 border-[#1A1A2E] rounded-2xl p-4">
+          <div className="bg-[#4ECDC4] dark:bg-accent border-3 border-border rounded-2xl p-4">
             <div className="flex items-start gap-2">
-              <div className="w-6 h-6 bg-white rounded-lg border-2 border-[#1A1A2E] flex items-center justify-center flex-shrink-0">
-                <Info className="w-4 h-4 text-[#1A1A2E]" strokeWidth={3} />
+              <div className="w-6 h-6 bg-card rounded-lg border-2 border-border flex items-center justify-center flex-shrink-0">
+                <Info className="w-4 h-4 text-foreground" strokeWidth={3} />
               </div>
-              <p className="text-xs text-[#1A1A2E]">
+              <p className="text-xs text-foreground">
                 <strong>Quick Exit:</strong> Press Shift+Esc anytime to instantly switch to disguised mode. 
                 Triple-tap the title to return to the app.
               </p>
@@ -315,20 +322,58 @@ export function SettingsPanel({ onLock, onBack }: SettingsPanelProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  const newTheme = theme === 'dark' ? 'light' : 'dark';
+                  const newTheme = effectiveTheme === 'dark' ? 'light' : 'dark';
                   setTheme(newTheme);
                   saveSetting('theme', newTheme);
                   toast.success(newTheme === 'dark' ? 'Dark mode enabled' : 'Light mode enabled');
                 }}
                 className="border-3 border-[#1A1A2E] dark:border-[#9D8AFF] rounded-xl bg-white dark:bg-[#1a1a2e] hover:bg-[#F8F9FA] dark:hover:bg-[#2A2A4E]"
               >
-                {theme === 'dark' ? (
+                {effectiveTheme === 'dark' ? (
                   <Sun className="w-4 h-4 text-[#1A1A2E] dark:text-[#9D8AFF]" />
                 ) : (
                   <Moon className="w-4 h-4 text-[#1A1A2E]" />
                 )}
               </Button>
             )}
+          </div>
+
+          <div className="py-3 border-b-3 border-[#E9ECEF] dark:border-[#3A3A5E]">
+            <Label className="text-[#1A1A2E] dark:text-[#f8f9fa] font-bold">Country for emergency resources</Label>
+            <p className="text-sm text-[#495057] dark:text-[#adb5bd] mb-2">Help hotlines and SOS numbers are shown for this country.</p>
+            <div className="flex gap-2">
+              <Select value={userCountry} onValueChange={(v) => { setUserCountry(v); saveSetting('userCountry', v); toast.success('Country updated'); }}>
+                <SelectTrigger className="flex-1 border-3 border-[#1A1A2E] dark:border-[#3A3A5E] rounded-xl h-10 bg-[#F8F9FA] dark:bg-[#2A2A4E] text-[#1A1A2E] dark:text-[#f8f9fa]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {COUNTRIES.map((c) => (
+                    <SelectItem key={c.code} value={c.code}>{c.flag} {c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setDetectingCountry(true);
+                  const detected = detectCountryFromBrowser();
+                  if (detected && getCountryByCode(detected)) {
+                    setUserCountry(detected);
+                    saveSetting('userCountry', detected);
+                    toast.success('Country set from browser timezone');
+                  } else {
+                    toast.error('Could not detect country. Please select manually.');
+                  }
+                  setDetectingCountry(false);
+                }}
+                disabled={detectingCountry}
+                className="border-3 border-[#1A1A2E] dark:border-[#9D8AFF] rounded-xl font-bold"
+              >
+                {detectingCountry ? '…' : 'Detect'}
+              </Button>
+            </div>
           </div>
 
           {!loadingReminders && reminderSettings && (

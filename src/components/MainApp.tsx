@@ -16,10 +16,10 @@ const SettingsPanel = lazy(() => import('./SettingsPanel').then(m => ({ default:
 // Loading component
 function TabLoading() {
   return (
-    <div className="flex items-center justify-center min-h-[400px]">
+    <div className="flex items-center justify-center min-h-[400px] bg-background">
       <div className="text-center">
-        <Loader2 className="w-8 h-8 text-[#4B2E83] dark:text-[#9D8AFF] animate-spin mx-auto mb-2" />
-        <p className="text-sm text-[#495057] dark:text-[#adb5bd]">Loading...</p>
+        <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-2" />
+        <p className="text-sm text-muted-foreground">Loading...</p>
       </div>
     </div>
   );
@@ -97,9 +97,9 @@ export function MainApp({ onLock, onPanic }: MainAppProps) {
   }, [activeTab, onLock, onPanic]);
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-[#F8F9FA] dark:bg-[#0d0e1a]">
+    <div className="min-h-screen min-h-[100dvh] bg-background text-foreground">
       {/* Header */}
-      <header className="bg-white dark:bg-[#1a1a2e] border-b-4 border-[#1A1A2E] dark:border-[#3A3A5E] sticky top-0 z-10 shadow-md">
+      <header className="bg-card border-b-4 border-border sticky top-0 z-10 shadow-md text-card-foreground">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <Logo size="sm" />
           
@@ -107,18 +107,18 @@ export function MainApp({ onLock, onPanic }: MainAppProps) {
             variant="ghost"
             size="sm"
             onClick={() => setActiveTab('settings')}
-            className="hover:bg-[#F8F9FA] dark:hover:bg-[#2A2A4E] rounded-xl border-2 border-transparent hover:border-[#1A1A2E] dark:hover:border-[#9D8AFF]"
+            className="hover:bg-muted rounded-xl border-2 border-transparent hover:border-primary text-foreground"
             aria-label="Open settings"
           >
-            <Settings className="w-5 h-5 text-[#1A1A2E] dark:text-[#f8f9fa]" aria-hidden="true" />
+            <Settings className="w-5 h-5" aria-hidden="true" />
           </Button>
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Main Content - z-0 so fixed nav always stacks on top */}
       <main
         id="main-content"
-        className="max-w-7xl mx-auto px-4 py-6 pb-[calc(10rem+env(safe-area-inset-bottom))]"
+        className="relative z-0 max-w-7xl mx-auto px-4 py-6 pb-[calc(12rem+env(safe-area-inset-bottom,0px))]"
         role="main"
       >
         {content}
@@ -138,9 +138,9 @@ export function MainApp({ onLock, onPanic }: MainAppProps) {
         />
       )}
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation - very high z so cards never overlay; always clickable */}
       {activeTab !== 'settings' && (
-        <nav className="fixed bottom-0 left-0 right-0 z-[100] bg-white dark:bg-[#1a1a2e] border-t-4 border-[#1A1A2E] dark:border-[#3A3A5E] pb-[env(safe-area-inset-bottom)] safe-area-pb shadow-2xl">
+        <nav className="fixed bottom-0 left-0 right-0 z-[9999] isolate bg-card border-t-4 border-border pb-[env(safe-area-inset-bottom,0px)] safe-area-pb shadow-2xl pointer-events-auto text-card-foreground">
           <div className="max-w-7xl mx-auto px-2 py-3">
             <div className="flex justify-around items-center overflow-x-auto">
               {tabs.map((tab) => {
@@ -154,12 +154,12 @@ export function MainApp({ onLock, onPanic }: MainAppProps) {
                     aria-current={isActive ? 'page' : undefined}
                     className={`flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition-all relative ${ 
                       isActive
-                        ? 'text-[#1A1A2E] dark:text-[#f8f9fa]'
-                        : 'text-[#ADB5BD] dark:text-[#6A6A8A] hover:text-[#495057] dark:hover:text-[#adb5bd]'
+                        ? 'text-foreground'
+                        : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     {isActive && (
-                      <div className="absolute inset-0 bg-[#C7B8FF] dark:bg-[#6B4BA3] rounded-2xl border-3 border-[#1A1A2E] dark:border-[#9D8AFF]" />
+                      <div className="absolute inset-0 bg-primary/30 rounded-2xl border-3 border-primary" />
                     )}
                     <div className={`relative z-10 transition-transform ${isActive ? 'scale-110 -translate-y-1' : ''}`}>
                       <Icon className="w-6 h-6" strokeWidth={isActive ? 3 : 2} aria-hidden="true" />

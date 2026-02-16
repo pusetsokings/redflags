@@ -16,10 +16,10 @@ const MainApp = lazy(() => import('./components/MainApp').then(module => ({ defa
 // Loading component
 function LoadingSpinner() {
   return (
-    <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center">
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
       <div className="text-center">
-        <Loader2 className="w-12 h-12 text-[#4B2E83] animate-spin mx-auto mb-4" />
-        <p className="text-[#495057] font-medium">Loading FlagSense...</p>
+        <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-4" />
+        <p className="text-muted-foreground font-medium">Loading FlagSense...</p>
       </div>
     </div>
   );

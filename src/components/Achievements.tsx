@@ -54,22 +54,22 @@ export function Achievements() {
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-20">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#FFD93D] to-[#FFE66D] dark:from-[#6B4BA3] dark:to-[#9D8AFF] rounded-3xl p-6 border-4 border-[#1A1A2E] dark:border-[#9D8AFF] shadow-lg">
+      <div className="bg-gradient-to-br from-[#FFD93D] to-[#FFE66D] dark:from-[#6B4BA3] dark:to-[#9D8AFF] rounded-3xl p-6 border-4 border-[#1A1A2E] dark:border-[#5A5A7E] shadow-lg">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-white dark:bg-[#1a1a2e] rounded-2xl border-4 border-[#1A1A2E] dark:border-[#9D8AFF] flex items-center justify-center">
+          <div className="w-16 h-16 bg-white dark:bg-[#1a1a2e] rounded-2xl border-4 border-[#1A1A2E] dark:border-[#5A5A7E] flex items-center justify-center">
             <Trophy className="w-8 h-8 text-[#FFD93D] dark:text-[#9D8AFF]" />
           </div>
           <div className="flex-1">
-            <h2 className="text-[#1A1A2E] dark:text-[#f8f9fa] font-bold text-2xl mb-1">Achievements</h2>
-            <p className="text-[#1A1A2E] dark:text-[#f8f9fa] opacity-90">
+            <h2 className="text-[#1A1A2E] dark:text-foreground font-bold text-2xl mb-1">Achievements</h2>
+            <p className="text-[#1A1A2E] dark:text-foreground/95">
               Celebrate your progress and milestones
             </p>
           </div>
           <div className="text-right">
-            <div className="text-4xl font-bold text-[#1A1A2E] dark:text-[#f8f9fa]">
+            <div className="text-4xl font-bold text-[#1A1A2E] dark:text-foreground">
               {unlockedCount}/{totalCount}
             </div>
-            <div className="text-sm text-[#1A1A2E] dark:text-[#f8f9fa] font-bold">Unlocked</div>
+            <div className="text-sm text-[#1A1A2E] dark:text-foreground font-bold">Unlocked</div>
           </div>
         </div>
 
@@ -85,17 +85,17 @@ export function Achievements() {
       </div>
 
       {/* Category Filter */}
-      <div className="bg-white dark:bg-[#1a1a2e] rounded-3xl p-4 shadow-lg border-4 border-[#1A1A2E] dark:border-[#3A3A5E]">
+      <div className="bg-white dark:bg-[#1a1a2e] rounded-3xl p-4 shadow-lg border-4 border-[#1A1A2E] dark:border-[#5A5A7E]">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm font-bold text-[#1A1A2E] dark:text-[#f8f9fa]">Filter:</span>
+          <span className="text-sm font-bold text-[#1A1A2E] dark:text-foreground">Filter:</span>
           {['all', 'streak', 'entries', 'flags', 'insights', 'milestone'].map(category => (
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
               className={`px-4 py-2 rounded-xl text-sm font-bold border-3 transition-all ${
                 selectedCategory === category
-                  ? 'bg-[#4B2E83] dark:bg-[#6B4BA3] text-white border-[#1A1A2E] dark:border-[#9D8AFF]'
-                  : 'bg-[#F8F9FA] dark:bg-[#2A2A4E] text-[#1A1A2E] dark:text-[#f8f9fa] border-[#1A1A2E] dark:border-[#3A3A5E] hover:bg-[#C7B8FF] dark:hover:bg-[#6B4BA3]'
+                  ? 'bg-[#4B2E83] dark:bg-[#6B4BA3] text-white border-[#1A1A2E] dark:border-[#5A5A7E]'
+                  : 'bg-[#F8F9FA] dark:bg-[#2A2A4E] text-[#1A1A2E] dark:text-foreground border-[#1A1A2E] dark:border-[#5A5A7E] hover:bg-[#C7B8FF] dark:hover:bg-[#6B4BA3]'
               }`}
             >
               {category === 'all' ? 'All' : category.charAt(0).toUpperCase() + category.slice(1)}
@@ -115,7 +115,7 @@ export function Achievements() {
               transition={{ delay: index * 0.05 }}
               className={`relative rounded-3xl p-6 shadow-lg border-4 transition-all ${
                 achievement.unlocked
-                  ? 'bg-white dark:bg-[#1a1a2e] border-[#1A1A2E] dark:border-[#9D8AFF]'
+                  ? 'bg-white dark:bg-[#1a1a2e] border-[#1A1A2E] dark:border-[#5A5A7E]'
                   : 'bg-[#F8F9FA] dark:bg-[#2A2A4E] border-[#ADB5BD] dark:border-[#6A6A8A] opacity-60'
               }`}
             >
@@ -198,9 +198,9 @@ export function Achievements() {
       </div>
 
       {sortedAchievements.length === 0 && (
-        <div className="bg-white dark:bg-[#1a1a2e] rounded-3xl p-12 text-center border-4 border-[#1A1A2E] dark:border-[#3A3A5E]">
+        <div className="bg-white dark:bg-[#1a1a2e] rounded-3xl p-12 text-center border-4 border-[#1A1A2E] dark:border-[#5A5A7E]">
           <Trophy className="w-16 h-16 text-[#4B2E83] dark:text-[#9D8AFF] mx-auto mb-4" />
-          <h3 className="text-[#1A1A2E] dark:text-[#f8f9fa] font-bold text-xl mb-2">No Achievements</h3>
+          <h3 className="text-[#1A1A2E] dark:text-foreground font-bold text-xl mb-2">No Achievements</h3>
           <p className="text-[#495057] dark:text-[#adb5bd]">
             No achievements found in this category
           </p>

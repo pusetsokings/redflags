@@ -43,6 +43,7 @@
   
   /* Borders & Inputs */
   --border: #DEE2E6;
+  --logo-stroke: #1A1A2E;
   --input: transparent;
   --input-background: #FAFAFA;
   --switch-background: #ADB5BD;
@@ -109,6 +110,7 @@
   
   /* Borders & Inputs */
   --border: #3A3A5E;
+  --logo-stroke: #5A5A7E;
   --input: #2A2A4E;
   --input-background: #1a1a2e;
   --switch-background: #4A4A6E;
@@ -180,6 +182,19 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Full-canvas dark mode: ensure html, body and root use theme so whole app is dark, not just cards */
+  html.dark,
+  html.dark body,
+  html.dark #root {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+
+  html.dark #root {
+    min-height: 100vh;
+    min-height: 100dvh;
   }
 }
 
